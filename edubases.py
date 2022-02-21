@@ -31,9 +31,9 @@ if __name__ == '__main__':
     categories = list(domains.keys())
 
     # display the PostgreSQL database server version
-    with open('edubases_labeled_data.csv', 'w', encoding='UTF8') as f_label:
+    with open('edubases_domain_labeled_data.csv', 'w', encoding='UTF8') as f_label:
             label_writer = csv.writer(f_label, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
-            label_header = ['id', 'text', 'label']
+            label_header = ['id', 'title', 'desc', 'label']
             label_writer.writerow(label_header)
 
             for row in cur:
@@ -78,7 +78,7 @@ if __name__ == '__main__':
                     else:
                         disciplines_count[dom] += 1
                 if dom:
-                    label_writer.writerow([line, title + " " + desc] + [categories.index(dom)])
+                    label_writer.writerow([line, title , desc] + [categories.index(dom)])
                 line += 1
 
     # close the communication with the PostgreSQL

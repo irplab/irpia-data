@@ -1,9 +1,13 @@
 import csv
 import pprint
 
+import nltk as nltk
 import oaipmh.client
 from oaipmh.metadata import MetadataRegistry, MetadataReader
 from mappings import domains
+from bs4 import BeautifulSoup
+
+nltk.download('punkt')
 
 categories = list(domains.keys())
 
@@ -33,35 +37,43 @@ if __name__ == '__main__':
     counter = line = 0
     domaines_count = {}
     missing_count = {}
-    with open('gar_labeled_data.csv', 'w', encoding='UTF8') as f_label:
-        label_writer = csv.writer(f_label, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
-        label_header = ['id', 'text', 'label']
-        label_writer.writerow(label_header)
-        for record in client.listRecords(metadataPrefix='lom'):
-            dom = None
-            counter += 1
-            title = record[1].getField('title')
-            desc = record[1].getField('description')
-            domaines = record[1].getField('domaineEnseignementLabel')
-            for index, domaine in enumerate(domaines):
-                if domaine not in domaines_count.keys():
-                    domaines_count[domaine] = 0
-                else:
-                    domaines_count[domaine] += 1
-                for d in domains.keys():
-                    if domaine.lower().strip() in map(lambda str: str.lower().strip(), domains[d]['scolomfr']):
-                        dom = d
-            if not dom:
+    with open('gar_domain_labeled_data_titles.csv', 'w', encoding='UTF8') as f_label_title:
+        with open('gar_domain_labeled_data_desc.csv', 'w', encoding='UTF8') as f_label_desc:
+            label_title_writer = csv.writer(f_label_title, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
+            label_desc_writer = csv.writer(f_label_desc, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
+            label_header = ['id', 'text', 'label']
+            label_title_writer.writerow(label_header)
+            label_desc_writer.writerow(label_header)
+            for record in client.listRecords(metadataPrefix='lom'):
+                dom = None
+                counter += 1
+                title = record[1].getField('title')
+                desc = record[1].getField('description')
+                domaines = record[1].getField('domaineEnseignementLabel')
                 for index, domaine in enumerate(domaines):
-                    print(f'****Manquant : {domaine}')
-                    if domaine not in missing_count.keys():
-                        missing_count[domaine] = 1
+                    if domaine not in domaines_count.keys():
+                        domaines_count[domaine] = 0
                     else:
-                        missing_count[domaine] += 1
-            if dom:
-                line += 1
-                label_writer.writerow([line, next(iter(title or []), '')] + [categories.index(dom)])
-
-            print(counter, title, domaines)
+                        domaines_count[domaine] += 1
+                    for d in domains.keys():
+                        if domaine.lower().strip() in map(lambda str: str.lower().strip(), domains[d]['scolomfr']):
+                            dom = d
+                if not dom:
+                    for index, domaine in enumerate(domaines):
+                        print(f'****Manquant : {domaine}')
+                        if domaine not in missing_count.keys():
+                            missing_count[domaine] = 1
+                        else:
+                            missing_count[domaine] += 1
+                if dom:
+                    line += 1
+                    processed_title = next(iter(title or []), '').replace("\n", " ").replace("\xa0", " ")
+                    processed_descriptions = BeautifulSoup(next(iter(desc or []), ''), "lxml").text.replace("\n", " ").replace(
+                        "\xa0", " ")
+                    sent_text = nltk.sent_tokenize(processed_descriptions, language='french')
+                    label_title_writer.writerow([line, processed_title] + [categories.index(dom)])
+                    for processed_description in enumerate(processed_descriptions):
+                        label_desc_writer.writerow([line, processed_description] + [categories.index(dom)])
+                print(counter, title, domaines)
 
     pprint.pprint({k: v for k, v in missing_count.items()})
