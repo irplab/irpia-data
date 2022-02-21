@@ -1,13 +1,17 @@
 import csv
 import pprint
+import re
+
 
 import nltk as nltk
+import spacy
 import oaipmh.client
 from oaipmh.metadata import MetadataRegistry, MetadataReader
 from mappings import domains
 from bs4 import BeautifulSoup
 
 nltk.download('punkt')
+nlp = spacy.load('fr_core_news_md')
 
 categories = list(domains.keys())
 
@@ -34,7 +38,7 @@ if __name__ == '__main__':
     registry = MetadataRegistry()
     registry.registerReader('lom', lom_reader)
     client = oaipmh.client.Client(URL, registry)
-    counter = line = 0
+    desc_line = counter = line = 0
     domaines_count = {}
     missing_count = {}
     with open('gar_domain_labeled_data_titles.csv', 'w', encoding='UTF8') as f_label_title:
@@ -67,13 +71,22 @@ if __name__ == '__main__':
                             missing_count[domaine] += 1
                 if dom:
                     line += 1
-                    processed_title = next(iter(title or []), '').replace("\n", " ").replace("\xa0", " ")
-                    processed_descriptions = BeautifulSoup(next(iter(desc or []), ''), "lxml").text.replace("\n", " ").replace(
-                        "\xa0", " ")
-                    sent_text = nltk.sent_tokenize(processed_descriptions, language='french')
+                    processed_title = next(iter(title or []), '').replace("\n", ".").replace("\xa0", " ")
+                    processed_description = BeautifulSoup(next(iter(desc or []), ''), "lxml").text.replace("\n",
+                                                                                                           ".").replace(
+                        "\xa0", " ").replace(">", ".").replace(":", ".").replace(";", ".")
+                    processed_description = re.sub(r'\.+\s*\.+', '.', processed_description)
+                    spacy_doc = nlp(processed_description)
+                    for sent in spacy_doc.sents:
+                        print('------')
+                        print(sent)
+                    # sentences = nltk.sent_tokenize(processed_description, language='french')
                     label_title_writer.writerow([line, processed_title] + [categories.index(dom)])
-                    for processed_description in enumerate(processed_descriptions):
-                        label_desc_writer.writerow([line, processed_description] + [categories.index(dom)])
+                    for sentence in spacy_doc.sents:
+                        if len(sentence) < 10:
+                            continue
+                        desc_line += 1
+                        label_desc_writer.writerow([desc_line, sentence] + [categories.index(dom)])
                 print(counter, title, domaines)
 
     pprint.pprint({k: v for k, v in missing_count.items()})

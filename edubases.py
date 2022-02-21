@@ -7,9 +7,12 @@
 import csv
 import pprint
 
+import nltk
 import psycopg2 as psycopg2
 from mappings import domains
 from db import conn_params
+
+nltk.download('punkt')
 
 DOM_ENSEIGN_PURPOSE = 'http://data.education.fr/voc/scolomfr/concept/scolomfr-voc-028-num-003'
 
@@ -31,10 +34,13 @@ if __name__ == '__main__':
     categories = list(domains.keys())
 
     # display the PostgreSQL database server version
-    with open('edubases_domain_labeled_data.csv', 'w', encoding='UTF8') as f_label:
-            label_writer = csv.writer(f_label, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
-            label_header = ['id', 'title', 'desc', 'label']
-            label_writer.writerow(label_header)
+    with open('edubases_domain_labeled_data_titles.csv', 'w', encoding='UTF8') as f_label_title:
+        with open('edubases_domain_labeled_data_desc.csv', 'w', encoding='UTF8') as f_label_desc:
+            label_title_writer = csv.writer(f_label_title, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
+            label_desc_writer = csv.writer(f_label_desc, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
+            label_title_header = ['id', 'text', 'label']
+            label_title_writer.writerow(label_title_header)
+            label_desc_writer.writerow(label_title_header)
 
             for row in cur:
                 total += 1
@@ -59,7 +65,8 @@ if __name__ == '__main__':
                             if 'taxonPath' in classification.keys():
                                 for tp in classification['taxonPath']:
                                     for d in domains.keys():
-                                        if tp['label'].lower().strip() in map(lambda str: str.lower().strip(), domains[d]['scolomfr']):
+                                        if tp['label'].lower().strip() in map(lambda str: str.lower().strip(),
+                                                                              domains[d]['scolomfr']):
                                             dom = d
                                 if not dom:
                                     print(f'*******New : <{tp["label"]}> Missing')
@@ -78,7 +85,10 @@ if __name__ == '__main__':
                     else:
                         disciplines_count[dom] += 1
                 if dom:
-                    label_writer.writerow([line, title , desc] + [categories.index(dom)])
+                    label_title_writer.writerow([line, title] + [categories.index(dom)])
+                    sentences = nltk.sent_tokenize(desc, language='french')
+                    for sentence in enumerate(sentences):
+                        label_desc_writer.writerow([line, sentence[1]] + [categories.index(dom)])
                 line += 1
 
     # close the communication with the PostgreSQL
