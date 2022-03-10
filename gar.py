@@ -1,7 +1,7 @@
 import csv
 import pprint
 import re
-
+import extruct
 
 import nltk as nltk
 import spacy
@@ -9,6 +9,8 @@ import oaipmh.client
 from oaipmh.metadata import MetadataRegistry, MetadataReader
 from mappings import domains
 from bs4 import BeautifulSoup
+import requests
+from w3lib.html import get_base_url
 
 nltk.download('punkt')
 nlp = spacy.load('fr_core_news_md')
@@ -21,6 +23,7 @@ lom_reader = MetadataReader(
         'title': ('textList', 'lom:lom/lom:general/lom:title/lom:string/text()'),
         'description': ('textList', 'lom:lom/lom:general/lom:description/lom:string/text()'),
         'educationalDescription': ('textList', 'lom:lom/lom:description/lom:description/lom:string/text()'),
+        'technicalLocation': ('textList', 'lom:lom/lom:technical/lom:location/text()'),
         'domaineEnseignementId': ('textList',
                                   "lom:lom/lom:classification[lom:purpose/lom:value='http://data.education.fr/voc/scolomfr/concept/scolomfr-voc-028-num-003']/lom:taxonPath/lom:taxon/lom:id/text()"),
         'domaineEnseignementLabel': ('textList',
@@ -41,6 +44,7 @@ if __name__ == '__main__':
     desc_line = counter = line = 0
     domaines_count = {}
     missing_count = {}
+    uris = []
     with open('gar_domain_labeled_data_titles.csv', 'w', encoding='UTF8') as f_label_title:
         with open('gar_domain_labeled_data_desc.csv', 'w', encoding='UTF8') as f_label_desc:
             label_title_writer = csv.writer(f_label_title, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
@@ -54,6 +58,21 @@ if __name__ == '__main__':
                 title = record[1].getField('title')
                 desc = record[1].getField('description')
                 domaines = record[1].getField('domaineEnseignementLabel')
+                locations = record[1].getField('technicalLocation')
+                if len(locations) > 0:
+                    location = locations[0]
+                    try:
+                        responses = requests.get(location, allow_redirects=True, verify=False)
+
+                        if(len(responses.history)>0):
+                            if responses.history[0].status_code == '301':
+                                location = responses.history[0].headers['Location']
+                                responses = requests.get(location, allow_redirects=True, verify=False)
+                        base_url = get_base_url(responses.text, responses.url)
+                        data = extruct.extract(responses.text, base_url=base_url)
+                        uris.append(location)
+                    except requests.exceptions.RequestException:
+                        print(f'SSL error with {location}')
                 for index, domaine in enumerate(domaines):
                     if domaine not in domaines_count.keys():
                         domaines_count[domaine] = 0
@@ -90,3 +109,5 @@ if __name__ == '__main__':
                 print(counter, title, domaines)
 
     pprint.pprint({k: v for k, v in missing_count.items()})
+    uris.sort()
+    pprint.pprint(uris)
