@@ -1,3 +1,6 @@
+# Generated through rake task data_utils:classify_levels
+# https://github.com/irplab/irpia/blob/main/back/lib/tasks/data_utils.rake
+
 levels_classification = {"level1": ["http://data.education.fr/voc/scolomfr/concept/scolomfr-voc-022-num-002",
                                     "http://data.education.fr/voc/scolomfr/concept/scolomfr-voc-022-num-008",
                                     "http://data.education.fr/voc/scolomfr/concept/scolomfr-voc-022-num-016",

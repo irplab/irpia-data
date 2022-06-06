@@ -1,3 +1,6 @@
+# Generated through rake task data_utils:expand_levels
+# https://github.com/irplab/irpia/blob/main/back/lib/tasks/data_utils.rake
+
 levels = {"scolomfr-voc-022-num-004": {"edubases": [],
                                        "scolomfr": ["scolomfr-voc-022-num-004", "scolomfr-voc-022-num-002",
                                                     "scolomfr-voc-022-num-241", "scolomfr-voc-022-num-617",
