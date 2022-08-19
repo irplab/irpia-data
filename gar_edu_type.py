@@ -7,7 +7,7 @@ import nltk as nltk
 import spacy
 import oaipmh.client
 from oaipmh.metadata import MetadataRegistry, MetadataReader
-from mappings_levels import levels
+from levels_mappings import levels
 from levels_replacements import levels_replacements
 from levels_classification import levels_classification
 from bs4 import BeautifulSoup

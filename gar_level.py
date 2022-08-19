@@ -10,7 +10,7 @@ from oaipmh.metadata import MetadataRegistry, MetadataReader
 
 from levels_classification import levels_classification
 from levels_replacements import levels_replacements
-from mappings_levels import levels
+from levels_mappings import levels
 
 nltk.download('punkt')
 nlp = spacy.load('fr_core_news_md')

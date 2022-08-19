@@ -4,7 +4,7 @@ import pprint
 import nltk
 import psycopg2 as psycopg2
 
-from mappings import domains
+from domains_mappings import domains
 
 from dotenv import dotenv_values
 

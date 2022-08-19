@@ -7,7 +7,7 @@ import nltk as nltk
 import spacy
 import oaipmh.client
 from oaipmh.metadata import MetadataRegistry, MetadataReader
-from mappings import domains
+from domains_mappings import domains
 from bs4 import BeautifulSoup
 import requests
 from w3lib.html import get_base_url
