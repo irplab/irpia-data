@@ -1,5 +1,4 @@
 # Hand built
-
 levels_replacements = {
     "http://data.education.fr/voc/scolomfr/concept/scolomfr-voc-022-num-042": "http://data.education.fr/voc/scolomfr/concept/scolomfr-voc-022-num-201",
     "http://data.education.fr/voc/scolomfr/concept/scolomfr-voc-022-num-041": "http://data.education.fr/voc/scolomfr/concept/scolomfr-voc-022-num-201",

@@ -1,18 +1,16 @@
 import csv
 import pprint
 import re
-import extruct
 
 import nltk as nltk
-import spacy
 import oaipmh.client
-from oaipmh.metadata import MetadataRegistry, MetadataReader
-from mappings_levels import levels
-from levels_replacements import levels_replacements
-from levels_classification import levels_classification
+import spacy
 from bs4 import BeautifulSoup
-import requests
-from w3lib.html import get_base_url
+from oaipmh.metadata import MetadataRegistry, MetadataReader
+
+from levels_classification import levels_classification
+from levels_replacements import levels_replacements
+from mappings_levels import levels
 
 nltk.download('punkt')
 nlp = spacy.load('fr_core_news_md')
@@ -129,10 +127,6 @@ if __name__ == '__main__':
                         "\xa0", " ").replace(">", ".").replace(":", ".").replace(";", ".")
                     processed_description = re.sub(r'\.+\s*\.+', '.', processed_description)
                     spacy_doc = nlp(processed_description)
-                    # for sent in spacy_doc.sents:
-                    #     print('------')
-                    #     print(sent)
-                    # sentences = nltk.sent_tokenize(processed_description, language='french')
                     selected_levels_indexes = [True if level in selected_levels else False for level in levels_index]
                     selected_levels_labels = ','.join(
                         map(lambda selected_level: levels_labels[int(levels_index.index(selected_level))],
