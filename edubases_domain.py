@@ -1,16 +1,14 @@
-# This is a sample Python script.
-
-# Press Maj+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-# Press the green button in the gutter to run the script.
 import csv
 import pprint
 
 import nltk
 import psycopg2 as psycopg2
+
 from mappings import domains
-from db import conn_params
+
+from dotenv import dotenv_values
+
+conn_params = dict(dotenv_values(".env"))
 
 nltk.download('punkt')
 
@@ -33,7 +31,6 @@ if __name__ == '__main__':
 
     categories = list(domains.keys())
 
-    # display the PostgreSQL database server version
     with open('edubases_domain_labeled_data_titles.csv', 'w', encoding='UTF8') as f_label_title:
         with open('edubases_domain_labeled_data_desc.csv', 'w', encoding='UTF8') as f_label_desc:
             label_title_writer = csv.writer(f_label_title, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
@@ -46,11 +43,11 @@ if __name__ == '__main__':
                 total += 1
                 json_data = row[12]
                 title = row[3].replace('\n', ' ').replace(r"\r\n",
-                                                          ' ')  # or json_data['general']['title'][0]['title']
+                                                          ' ')
                 print(title)
                 desc = row[4].replace('\n', ' ').replace(r"\r\n",
-                                                         ' ')  # or json_data['general']['description'][0]['title']
-                uri = row[5]  # or json_data['general']['identifier'][0]['entry']
+                                                         ' ')
+                uri = row[5]
                 dom = None
                 if 'legacyDiscipline' in json_data.keys():
                     legacy_name = json_data['legacyDiscipline']['name']
@@ -58,7 +55,7 @@ if __name__ == '__main__':
                         if legacy_name in domains[d]['edubases']:
                             dom = d
                     if not dom:
-                        print(f'*******Legacy : <{legacy_name}> Missing')
+                        print(f'******* Legacy : <{legacy_name}> Missing')
                 elif 'classification' in json_data.keys():
                     for classification in json_data['classification']:
                         if classification['purpose']['id'] == DOM_ENSEIGN_PURPOSE:
@@ -69,7 +66,7 @@ if __name__ == '__main__':
                                                                               domains[d]['scolomfr']):
                                             dom = d
                                 if not dom:
-                                    print(f'*******New : <{tp["label"]}> Missing')
+                                    print(f'******* New : <{tp["label"]}> Missing')
                                     if not tp['label'] in missing_count.keys():
                                         missing_count[tp['label']] = 1
                                     else:
@@ -91,7 +88,6 @@ if __name__ == '__main__':
                         label_desc_writer.writerow([line, sentence[1]] + [categories.index(dom)])
                 line += 1
 
-    # close the communication with the PostgreSQL
     cur.close()
     print(total)
     pprint.pprint(disciplines_count)

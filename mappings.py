@@ -199,13 +199,4 @@ domains = {'scolomfr-voc-015-num-1179': {'edubases': ['Arts plastiques'],
                                                       'prévention-santé-environnement (bac pro)',
                                                       'prévention-santé-environnement (cap)',
                                                       'sciences appliquées à l\'alimentation, à l\'hygiène et à l\'environnement']},
-           # 'Droit': ['droit'],
-           # 'cuisine': ['cuisine', 'cuisine (Bac Pro)',
-           #             'sciences et technologies culinaires'],
-           # 'commerce et vente': ['commerce et vente', 'mercatique', 'vente',
-           #                       'service et commercialisation',
-           #                       'accueil relation clients et usagers',
-           #                       'vente et développement commercial'],
-           #
-           # 'Documentation': ['documentation'],
            }
