@@ -115,7 +115,7 @@ if __name__ == '__main__':
             source_level_ids = list(filter(None, source_level_ids))
             for niveau_id in source_level_ids:
                 if not take_identifier(niveau_id) in all_values:
-                    raise Exception(f'Value not handled : {niveau_id}')
+                    print(f'Value not handled : {niveau_id}')
             niveaux_ids_global += source_level_ids
             # search in leaf levels
             for index, niveau_id in enumerate(source_level_ids):
