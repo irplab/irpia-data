@@ -156,9 +156,9 @@ if __name__ == '__main__':
                 processed_description = re.sub(r'\.+\s*\.+', '.', processed_description)
                 selected_levels_labels = ','.join(
                     map(lambda selected_level: levels_labels[int(levels_index.index(selected_level))],
-                        selected_level_ids))
+                        deduplicate(selected_level_ids)))
                 file_writer.writerow(
-                    [line, processed_title, processed_description, deduplicate(selected_levels_labels),
+                    [line, processed_title, processed_description, selected_levels_labels,
                      f"[{','.join(deduplicate(selected_level_ids))}]",
                      f"[{','.join(deduplicate(source_level_ids))}]",
                      selected_domain_label, selected_domain_id,
