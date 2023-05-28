@@ -1,7 +1,7 @@
-import csv
 import pprint
 import re
 
+import jsonlines
 import oaipmh.client
 from bs4 import BeautifulSoup
 from oaipmh.metadata import MetadataRegistry, MetadataReader
@@ -61,11 +61,9 @@ if __name__ == '__main__':
     niveaux_ids_global = []
     missing_count = {}
     uris = []
-    with open('gar_shared_data.csv', 'w', encoding='UTF8') as output_file:
-        file_writer = csv.writer(output_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
+    with jsonlines.open('gar_shared_data.jsonl', mode='w') as file_writer:
         label_header = ['id', 'title', 'desc', 'simple_level_labels', 'simple_level_ids', 'detailed_level_ids',
                         'simple_domain_label', 'simple_domain_id', 'detailed_domains_ids']
-        file_writer.writerow(label_header)
         for record in client.listRecords(metadataPrefix='lom'):
             selected_level_ids = []
             selected_domain_id = None
@@ -157,12 +155,12 @@ if __name__ == '__main__':
                 selected_levels_labels = ','.join(
                     map(lambda selected_level: levels_labels[int(levels_index.index(selected_level))],
                         deduplicate(selected_level_ids)))
-                file_writer.writerow(
-                    [line, processed_title, processed_description, selected_levels_labels,
-                     f"[{','.join(deduplicate(selected_level_ids))}]",
-                     f"[{','.join(deduplicate(source_level_ids))}]",
-                     selected_domain_label, selected_domain_id,
-                     f"[{','.join(list(map(take_identifier, deduplicate(source_domain_ids))))}]"])
+                values = [line, processed_title, processed_description, selected_levels_labels,
+                          deduplicate(selected_level_ids),
+                          deduplicate(source_level_ids),
+                          selected_domain_label, selected_domain_id,
+                          list(map(take_identifier, deduplicate(source_domain_ids)))]
+                file_writer.write(dict(zip(label_header, values)))
     # pprint.pprint({k: v for k, v in missing_count.items()})
     # niveaux_ids_global = list(dict.fromkeys(niveaux_ids_global))
     # niveaux_ids_global.sort()

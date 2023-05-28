@@ -1,7 +1,7 @@
-import csv
 import pprint
 import re
 
+import jsonlines as jsonlines
 import psycopg2 as psycopg2
 from dotenv import dotenv_values
 
@@ -44,11 +44,9 @@ if __name__ == '__main__':
 
     categories = list(domains.keys())
 
-    with open('edubases_shared_data.csv', 'w', encoding='UTF8') as f_label_title:
-        file_writer = csv.writer(f_label_title, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
+    with jsonlines.open('edubases_shared_data.jsonl', mode='w') as file_writer:
         label_title_header = ['id', 'title', 'desc', 'simple_level_labels', 'simple_level_ids', 'detailed_level_ids',
                               'simple_domain_label', 'simple_domain_id', 'detailed_domains_ids']
-        file_writer.writerow(label_title_header)
 
         for row in cur:
             total += 1
@@ -149,12 +147,12 @@ if __name__ == '__main__':
             if not selected_level_ids and not selected_domain_id:
                 without_level_domain_resources += 1
             if selected_domain_id or complete_domaine_ids or selected_level_ids or complete_level_ids:
-                file_writer.writerow(
-                    [line, title, desc, selected_levels_labels,
-                     f"[{','.join(deduplicate(selected_level_ids))}]",
-                     f"[{','.join(deduplicate(complete_level_ids))}]",
-                     selected_domain_label, selected_domain_id,
-                     f"[{','.join(deduplicate(complete_domaine_ids))}]"])
+                values = [line, title, desc, selected_levels_labels,
+                          deduplicate(selected_level_ids),
+                          deduplicate(complete_level_ids),
+                          selected_domain_label, selected_domain_id,
+                          deduplicate(complete_domaine_ids)]
+                file_writer.write(dict(zip(label_title_header, values)))
             line += 1
 
     cur.close()
