@@ -1,0 +1,21 @@
+version: '3.4'
+
+services:
+  edudb:
+    image: edudb:latest
+    environment:
+      - POSTGRES_PASSWORD=${password}
+      - POSTGRES_DB=${database}
+      - POSTGRES_USER=${user}
+  edudata:
+    image: edudata:latest
+    environment:
+      - POSTGRES_PASSWORD=${password}
+      - POSTGRES_DB=${database}
+      - POSTGRES_USER=${user}
+      - POSTGRES_PORT=5432
+      - POSTGRES_HOST=edudb
+    volumes:
+      - ./output:/usr/app/src/output
+    depends_on:
+      - edudb

@@ -1,15 +1,20 @@
+import os
 import pprint
 import re
+import time
 
 import jsonlines as jsonlines
 import psycopg2 as psycopg2
-from dotenv import dotenv_values
 
 from domains_mappings import domains
 from levels_mappings import levels
 from utils import deduplicate, take_identifier
 
-conn_params = dict(dotenv_values(".env"))
+conn_params = {"host": os.getenv("POSTGRES_HOST"),
+               "port": os.getenv("POSTGRES_PORT"),
+               "database": os.getenv("POSTGRES_DB"),
+               "user": os.getenv("POSTGRES_USER"),
+               "password": os.getenv("POSTGRES_PASSWORD")}
 
 DOM_ENSEIGN_PURPOSE = 'http://data.education.fr/voc/scolomfr/concept/scolomfr-voc-028-num-003'
 
@@ -44,7 +49,7 @@ if __name__ == '__main__':
 
     categories = list(domains.keys())
 
-    with jsonlines.open('edubases_shared_data.jsonl', mode='w') as file_writer:
+    with jsonlines.open(f"output/{time.strftime('%Y%m%d-%H%M%S')}_edubases_shared_data.jsonl", mode='w') as file_writer:
         label_title_header = ['id', 'title', 'desc', 'simple_level_labels', 'simple_level_ids', 'detailed_level_ids',
                               'simple_domain_label', 'simple_domain_id', 'detailed_domains_ids']
 

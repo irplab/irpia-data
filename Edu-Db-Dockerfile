@@ -1,0 +1,5 @@
+FROM postgres:latest
+
+COPY db/dump-prod-edubase-20200608.sql /docker-entrypoint-initdb.d
+
+RUN bash

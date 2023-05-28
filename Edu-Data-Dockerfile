@@ -1,0 +1,10 @@
+FROM python:latest
+
+WORKDIR /usr/app/src
+
+COPY edubases_shared_data.py domains_mappings.py levels_mappings.py utils.py .
+COPY edubases_shared_data_requirements.txt ./requirements.txt
+
+RUN pip install -r requirements.txt
+
+CMD [ "python", "./edubases_shared_data.py"]
