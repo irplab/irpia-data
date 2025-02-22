@@ -11,6 +11,7 @@ from dotenv import dotenv_values
 conn_params = dict(dotenv_values(".env"))
 
 nltk.download('punkt')
+nltk.download('punkt_tab')
 
 DOM_ENSEIGN_PURPOSE = 'http://data.education.fr/voc/scolomfr/concept/scolomfr-voc-028-num-003'
 
@@ -67,17 +68,17 @@ if __name__ == '__main__':
                                             dom = d
                                 if not dom:
                                     print(f'******* New : <{tp["label"]}> Missing')
-                                    if not tp['label'] in missing_count.keys():
+                                    if tp['label'] not in missing_count.keys():
                                         missing_count[tp['label']] = 1
                                     else:
                                         missing_count[tp['label']] += 1
                                 if dom:
-                                    if not tp['label'] in domaines_count.keys():
+                                    if tp['label'] not in domaines_count.keys():
                                         domaines_count[tp['label']] = 1
                                     else:
                                         domaines_count[tp['label']] += 1
                 if dom:
-                    if not dom in disciplines_count.keys():
+                    if dom not in disciplines_count.keys():
                         disciplines_count[dom] = 1
                     else:
                         disciplines_count[dom] += 1
